@@ -41,6 +41,7 @@ class QuizTaker(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
 
 
+
 class Answer(models.Model):
     taker = models.ForeignKey(QuizTaker, on_delete=models.DO_NOTHING)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
