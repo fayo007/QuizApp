@@ -73,6 +73,10 @@ class Answer(models.Model):
     answer = models.ForeignKey(Option, on_delete=models.CASCADE)
     is_correct = models.BooleanField()
 
+    def save(self, *args, **kwargs):
+        self.is_correct = self.answer == self.question.correct_answer
+        super(Answer, self).save(*args, **kwargs)
+
 
 class Result(models.Model):
     taker = models.ForeignKey(QuizTaker, on_delete=models.CASCADE)

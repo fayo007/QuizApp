@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- forms-editor.html  21 Nov 2019 03:55:08 GMT -->
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Otika - Admin Dashboard Template</title>
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="{% static 'assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/bundles/summernote/summernote-bs4.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/bundles/codemirror/lib/codemirror.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/bundles/codemirror/theme/duotone-dark.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/bundles/jquery-selectric/selectric.css' %}">
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
+  <!-- Custom style CSS -->
+  <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href='assets/img/favicon.ico' />
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    
+     <br><br><br>
+      <!-- Main Content -->
+      <div class="main-content">
+        <section class="section">
+          <div class="section-body">
+           
+
+
+
+
+            <div class="row">
+              <div class="col-10">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Quiz Yaratish</h4>
+                  </div>
+                  <form method="post"class="needs-validation" novalidate=""> {% csrf_token %}
+                    <div class="form-group" action=''>
+                      <label for="email">Quiz nomini kiriting</label>
+                      <input id="email" type="text" class="form-control" name="title" tabindex="10" required autofocus>
+                      <div class="invalid-feedback">
+                        Please fill in your email
+                      </div>
+                    </div>
+                   
+                    <div class="form-group">
+                      
+                    </div>
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                        Yaratish
+                      </button>
+                    </div>
+                  </form>
+               
+                </div>
+              </div>
+            </div>
+           
+    
+        </div>
+      </div>
+
+  </div>
+
+  <!-- General JS Scripts -->
+  <script src="{% static 'assets/js/app.min.js' %}"></script>
+  <!-- JS Libraies -->
+  <script src="{% static 'assets/bundles/summernote/summernote-bs4.js' %}"></script>
+  <script src="{% static 'assets/bundles/codemirror/lib/codemirror.js' %}"></script>
+  <script src="{% static 'assets/bundles/codemirror/mode/javascript/javascript.js' %}"></script>
+  <script src="{% static 'assets/bundles/jquery-selectric/jquery.selectric.min.js' %}"></script>
+  <script src="{% static 'assets/bundles/ckeditor/ckeditor.js' %}"></script>
+  <!-- Page Specific JS File -->
+  <script src="{% static 'assets/js/page/ckeditor.js' %}"></script>
+  <!-- Template JS File -->
+  <script src="{% static 'assets/js/scripts.js' %}"></script>
+  <!-- Custom JS File -->
+  <script src="{% static 'assets/js/custom.js' %}"></script>
+</body>
+
+
+<!-- forms-editor.html  21 Nov 2019 03:55:16 GMT -->
+</html>
