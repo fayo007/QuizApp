@@ -6,59 +6,47 @@ from django.contrib.auth.models import User
 import xlwt
 from django.http import HttpResponse
 
+from django.utils import timezone
+from .models import Question
 
+def quiz_timer(request):
+    current_time = timezone.now()
+    questions = Question.objects.all()
+    question_data = []
 
-# exelga generatsiya qilish 
+    for question in questions:
+        time_difference = current_time - question.created_at 
+        time_left_seconds = question.timer - time_difference.total_seconds()
+        time_left_seconds = max(time_left_seconds, 0)
 
-def generate_excel(request):
-    queryset = Result.objects.all()
+        question_data.append({
+            'text': question.text,
+            'time_left': int(time_left_seconds),  
+        })
 
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="data.xls"'
-
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Sheet1')
-
-    row_num = 0
-    columns = [
-        "Field1",
-        "Field2",
-    ]
-    for col_num, column_title in enumerate(columns):
-        ws.write(row_num, col_num, column_title)
-    for obj in queryset:
-        row_num += 1
-        for col_num, column_name in enumerate(columns):
-            value = getattr(obj, column_name)
-            ws.write(row_num, col_num, value)
-    wb.save(response)
-    return response
+    return render(request, 'question_list.html', {'questions': question_data})
 
 
 
-@login_required(login_url = 'dash:register_user')
+
+@login_required(login_url = 'dash:login')
 def main(request):
     quizes = Quiz.objects.filter(author = request.user)
     context = {
         "quizes" : quizes
     }
-    return render(request, 'index.html', context)
+    return render(request, 'main.html', context)
 
-# quizes
-
-@login_required(login_url = 'dash:register_user')
+@login_required(login_url = 'dash:login')
 def create_quiz(request):
     if request.method == 'POST':
         title = request.POST['title']
-        Quiz.objects.create(
+        quiz = Quiz.objects.create(
             title = title,
-            author = request.user 
+            author = request.user
         )
-        return render(request,'quiz/create-question.html')
-    return render(request,'quiz/create-quiz.html')
-
-
-# questions
+        return redirect('dash:quest_create', quiz.id)
+    return render(request, 'quiz/create-quiz.html')
 
 @login_required(login_url = 'dash:login')
 def create_question(request, id):
@@ -86,22 +74,75 @@ def create_question(request, id):
             return redirect('dash:main')
 
     return render (request, 'quiz/create-question.html' )
+
+@login_required(login_url = 'dash:login')
+def questions_list(request, id):
+    quests = Question.objects.filter(quiz_id = id)
+    context = {
+        'questions': quests
+    }
+    return render (request, 'details/questions.html', context)
+
+@login_required(login_url = 'dash:login')
+def quest_detail(request, id):
+    question = Question.objects.get(id = id)
+    option_correct = Option.objects.get(question = question, is_correct = True)
+    options = Option.objects.filter(question = question, is_correct = False).order_by('id')
+    context = {
+        'question': question,
+        'options': options,
+        'option_correct' : option_correct
+    }
+    if request.method == 'POST':
+        question.title = request.POST['title']
+        question.save()
+
+        option_correct.name = request.POST['correct']
+        option_correct.save()
+
+        data = [request.POST['incorrect1'], request.POST['incorrect2'], request.POST['incorrect3']]
+
+        for i, opt in enumerate(options):
+            opt.name = data[i]
+            opt.save()
+    return render( request, 'details/detail.html', context)
+
+@login_required(login_url = 'dash:login')
+def quiz_delete(request, id):
+    Quiz.objects.get(id = id).delete()
+    return redirect('dash:main')
+
+@login_required(login_url = 'dash:login')
+def get_results(request, id):
+    quiz = Quiz.objects.get(id=id)
+    taker = QuizTaker.objects.filter(quiz=quiz)
+
+    # results = []
+    # for i in taker:
+    #     results.append(Result.objects.get(taker=i))
     
-# authentication
-
-def register_user(request) :
-    if request. method == 'POST':
-        username = request. POST ['username']
-        password = request. POST ['password']
-        User.objects. create_user(
-            username = username,
-            password=password
+    results = tuple(
+            map(
+            lambda x : Result.objects.get(taker=x),
+            taker
         )
-        return redirect('dash:main')
-    return render (request,'auth/register.html')
+    )
+    return render(request, 'quiz/results.html', {'results':results})
+
+def result_detail(request, id):
+    result = Result.objects.get(id=id)
+    answers = Answer.objects.filter(taker=result.taker)
+    context = {
+        'taker':result.taker,
+        'answers':answers
+    }
+    return render(request, 'quiz/result-detail.html', context)
+
+#login
 
 
-def sign_user(request):
+def logging_in(request):
+    status = False
     if request.method == 'POST':
         username = request.POST['username']
         password =  request.POST['password']
@@ -109,6 +150,24 @@ def sign_user(request):
         if user:
             login(request, user)
             return redirect('dash:main')
-        
-    return render(request,'auth/login.html')
+        else:
+            status = 'incorrect username or password'
+    return render(request, 'auth/login.html', {'status':status})
+
+def register(request):
+    status = False
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        if not User.objects.filter(username = username).first():
+            User.objects.create_user(
+                username=username,
+                password=password
+            )
+            user = authenticate(username = username, password = password)
+            login(request, user)
+            return redirect('dash:main')
+        else:
+            status  = f'the username {username} is occupied'
+    return render(request, 'auth/register.html', {'status': status})
 
