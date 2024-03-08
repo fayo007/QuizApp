@@ -19,6 +19,7 @@ def create_result(id):
         incorrect_answers=incorrect
     )
 
+
 def quiz_detail(request, code):
     quiz = models.Quiz.objects.get(code=code)
     questions = models.Question.objects.filter(
@@ -29,6 +30,7 @@ def quiz_detail(request, code):
         'questions':questions
     }
     return render(request, 'front/quiz-detail.html', context)
+
 
 
 def create_answers(request, code):
