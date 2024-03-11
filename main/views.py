@@ -170,4 +170,3 @@ def register(request):
         else:
             status  = f'the username {username} is occupied'
     return render(request, 'auth/register.html', {'status': status})
-
